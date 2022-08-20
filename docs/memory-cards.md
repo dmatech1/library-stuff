@@ -1,2 +1,3 @@
 # Memory Cards
 
+I've collected a fair number of [CompactFlash](https://en.wikipedia.org/wiki/CompactFlash), [Memory Stick](https://en.wikipedia.org/wiki/Memory_Stick), and [SD](https://en.wikipedia.org/wiki/SD_card) cards over the years.  I can use `ddrescue` to image the whole block device, though I don't know of any way to pull serial numbers or other metadata.  I'd imagine that's not terribly important, though.
