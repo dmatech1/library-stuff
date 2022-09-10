@@ -1,11 +1,30 @@
 # Optical Media
 
+
+## Sector format
+
+CD-ROM sectors are 3234 bytes in length on the media, but only around 2448 bytes of this is visible to the computer.
+
+```c++
+struct sector {
+    struct frame {
+        uint8_t data[33];
+    } frames[98];
+};
+
+```
+
 To-Do
 * Describe various sector formats.
-  * 3234-byte sectors are the true format of a CD, but you'll never see this.  Only the drive firmware does.
-  * 2448-byte sectors ...
-  * 2352-byte sectors ...
   * 2048-byte sectors are what you see if you try to "image" a CD-ROM using `/dev/sr0` and `ddrescue`.  This is what gets put into an `.iso` file and is good enough for most stuff.  This contains no subcodes or ECC information.
+  * 3234-byte sectors are the true format of a CD, but you'll never see this.  Only the drive firmware does.
+  * 2448-byte sectors are returned by `cdrdao read-cd --read-raw --read-subchan rw_raw` and put `TRACK MODE1_RAW RW_RAW` in the `.toc` file.  It includes 96 bytes of [subchannel data](https://en.wikipedia.org/wiki/Compact_Disc_subcode), 2048 bytes of data, ...
+    ```c++
+    struct sector {
+
+    }
+    ```
+  * 2352-byte sectors ...
 
 Software
 * [`cdrdao`](http://cdrdao.sourceforge.net/): Disk-At-Once Recording of Audio and Data CD-Rs/CD-RWs
