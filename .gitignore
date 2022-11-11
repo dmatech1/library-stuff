@@ -3,3 +3,8 @@ data/
 
 # I don't really know or care what this is.
 .ipynb_checkpoints/
+
+# Visual C# output.
+bin/
+obj/
+
