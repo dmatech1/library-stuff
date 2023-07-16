@@ -1,0 +1,133 @@
+<!DOCTYPE HTML>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title id="title_elem">Disc Picker</title>
+
+    <style>
+      .label_text {
+        fill:green; font-size:50px; text-align: center;
+      }
+      .alignment_line {
+        stroke:red; 
+        stroke-width:3;        
+      }
+
+      /* See: https://stackoverflow.com/questions/43806515/position-svg-elements-over-an-image */
+
+      .img_with_overlay {
+        position: relative;
+        display: inline-block;
+        border: 1px solid black;
+        padding: 0px 0px 0px 0px;
+      }
+
+      .img_with_overlay img {
+        display: block;
+        padding: 0px 0px 0px 0px;
+      }
+
+      .img_with_overlay svg {
+        position: absolute;
+        top: 0;
+        left: 0;
+        padding: 0px 0px 0px 0px;
+      }
+    </style>
+
+    <script>
+      function draw_label(x, y, text) {
+        // See: https://www.tutorialrepublic.com/codelab.php?topic=html5&file=render-text-with-svg
+        elem = document.createElementNS('http://www.w3.org/2000/svg', "text");
+        elem.setAttribute("x", x)
+        elem.setAttribute("y", y)
+        elem.setAttribute("class", "label_text")
+        elem.appendChild(document.createTextNode(text));
+        disc_scans_overlay.appendChild(elem);
+        return elem;
+      }
+
+      function draw_line(x1, y1, x2, y2) {
+        // See: https://www.tutorialrepublic.com/codelab.php?topic=html5&file=create-a-line-with-svg
+        line = document.createElementNS('http://www.w3.org/2000/svg', "line");
+        line.setAttribute("x1", x1);
+        line.setAttribute("y1", y1);
+        line.setAttribute("x2", x2);
+        line.setAttribute("y2", y2);
+        line.setAttribute("class", "alignment_line")
+        disc_scans_overlay.appendChild(line);
+        return line;
+      }
+
+      function click_handler(e) {
+        if (current_disc == null) {
+          // First click records the center of the disc and prompts for a disc number.
+          disc_number = prompt("What's the disc #?")
+
+          if (disc_number != null && disc_number != "") {
+            current_disc = {
+              "disc_number": disc_number,
+              "src": disc_scans.src,
+              "center": {
+                "x": e.offsetX,
+                "y": e.offsetY
+              }
+            }
+            draw_label(e.offsetX, e.offsetY, disc_number);
+            discs[disc_number] = current_disc;
+            big_div.style.cursor = "default";
+          }
+        } else if ("horizontal_line" in current_disc) {
+          // Third click records the right part of a horizontal line and completes the record.
+          big_div.style.cursor = "crosshair";
+          hl = current_disc["horizontal_line"];
+          hl["x2"] = e.offsetX;
+          hl["y2"] = e.offsetY;
+          draw_line(hl["x1"], hl["y1"], hl["x2"], hl["y2"]);
+          current_disc = null;
+        } else {
+          // Second click records the left part of a horizontal line.
+          big_div.style.cursor = "help";
+          current_disc["horizontal_line"] = {
+            "x1": e.offsetX,
+            "y1": e.offsetY
+          }
+        }
+      }
+
+      function initialize_doc(e) {
+        // Called when the hash is changed or the page is loaded.
+        window.discs = {};
+        window.current_disc = null;
+        big_div.style.cursor = "crosshair";
+        title_elem.innerText = "Disc Picker: " + window.location.hash;
+        disc_scans.src = "file:///c:/Users/dma/Documents/Inventory/Optical%20Disc%20Scans/EPSON" + window.location.hash.substring(1) + ".JPG";
+      }
+
+      function initialize_overlay(e) {
+        // Called when the scan JPG is loaded to size the SVG object properly.
+        disc_scans_overlay.setAttribute("viewBox", "0 0 " + disc_scans.naturalWidth + " " + disc_scans.naturalHeight);
+        disc_scans_overlay.replaceChildren();
+      }
+
+      function keydown_handler(e) {
+        if (e.keyCode == 32) {
+          // Pressing spacebar copies the JSON data to the clipboard.
+          navigator.clipboard.writeText(JSON.stringify(discs));
+          e.preventDefault();
+        } else {
+          // debugger;
+        }
+      }
+    </script>
+  </head>
+
+  <body onhashchange="initialize_doc(event)" onload="initialize_doc(event)" onkeydown="keydown_handler(event)">
+    <div id="big_div" class="img_with_overlay" onclick="click_handler(event)">
+      <img id="disc_scans" onload="initialize_overlay(event)" style="padding: 0px" />
+      <svg id="disc_scans_overlay"></svg>
+    </div>
+  </body>
+</html>
+
+
